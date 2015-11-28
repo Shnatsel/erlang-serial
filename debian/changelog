@@ -1,0 +1,5 @@
+erlang-serial (1.0~r27+gitc9673ff-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Sergey "Shnatsel" Davidoff <shnatsel@gmail.com>  Sun, 29 Nov 2015 01:38:52 +0300

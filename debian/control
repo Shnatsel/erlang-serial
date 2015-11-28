@@ -1,0 +1,20 @@
+Source: erlang-serial
+Section: comm
+Priority: optional
+Maintainer: Sergey "Shnatsel" Davidoff <shnatsel@gmail.com>
+Build-Depends: debhelper (>= 9), erlang-dev
+Standards-Version: 3.9.5
+Homepage: https://github.com/tonyg/erlang-serial
+#Vcs-Git: git://git.debian.org/collab-maint/erlang-serial.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/erlang-serial.git;a=summary
+
+Package: erlang-serial
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Erlang serial-port support
+ This is a port program with erlang driver for serial communication,
+ originally written by Johan Bevemyr in 1996 and sporadically maintained by
+ Tony Garnock-Jones from 2007 onwards.
+ .
+ This library is designed to run as an Erlang library,
+ not an application dependency.

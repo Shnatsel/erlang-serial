@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# Fix for building on ARM by appending -fPIC to CFLAGS
+export DEB_CFLAGS_MAINT_APPEND=-fPIC
+
+# Enable hardening
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ 
+
+override_dh_auto_install:
+		$(MAKE) DESTDIR=$$(pwd)/debian/erlang-serial/usr/lib/ install
