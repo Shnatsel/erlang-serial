@@ -31,7 +31,8 @@ WARNING_OPTIONS =
 LANGUAGE_OPTIONS = 
 COMPILER_OPTIONS = -g 
 
-CFLAGS += $(WARNING_OPTIONS) $(LANGUAGE_OPTIONS) $(COMPILER_OPTIONS)
+CFLAGS += $(WARNING_OPTIONS) $(LANGUAGE_OPTIONS) $(COMPILER_OPTIONS) -fsanitize=address -fno-omit-frame-pointer
+LDFLAGS += -fsanitize=address
 
 ######################################################################
 
