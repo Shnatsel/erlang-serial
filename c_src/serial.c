@@ -348,7 +348,7 @@ int tbh_read(int fd, unsigned char buf[], int buffsize)
 void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 		  unsigned char buf[], int buffmaxsize)
 {
-  set_rts(ttyfd, RTS_TRANSMITTING);
+  rts_start_transmission(ttyfd);
 
   write(ttyfd,buf,buffsize);
   totalsize -= buffsize;
@@ -363,7 +363,7 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
       totalsize -= buffsize;
     }
 
-  set_rts(ttyfd, RTS_RECEIVING);
+  rts_start_transmission(ttyfd);
 
   return;
 }
