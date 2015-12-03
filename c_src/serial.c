@@ -74,6 +74,7 @@ THE SOFTWARE.
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -107,6 +108,9 @@ bit_rate bitrate_table[MAXSPEED] = {
   {115200 , B115200 }, 	
   {230400 , B230400 }
 };
+
+#define RTS_TRANSMITTING 0
+#define RTS_RECEIVING 1
 
 /**********************************************************************
  * Name: get_speed
@@ -344,6 +348,8 @@ int tbh_read(int fd, unsigned char buf[], int buffsize)
 void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 		  unsigned char buf[], int buffmaxsize)
 {
+  set_rts(ttyfd, RTS_TRANSMITTING);
+
   write(ttyfd,buf,buffsize);
   totalsize -= buffsize;
 
@@ -357,7 +363,35 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
       totalsize -= buffsize;
     }
 
+  set_rts(ttyfd, RTS_RECEIVING);
+
   return;
+}
+
+/**********************************************************************
+ * Name: set_rts
+ * Desc: change RTS/CTS hardware flow control state.
+ *       Valid levels are RTS_TRANSMITTING and RTS_RECEIVING.
+ *
+ */
+
+int set_rts(int fd, int level)
+{
+  int status;
+
+  if (ioctl(fd, TIOCMGET, &status) == -1) {
+    perror("setRTS(): TIOCMGET");
+    return 0;
+  }
+  if (level)
+    status |= TIOCM_RTS;
+  else
+    status &= ~TIOCM_RTS;
+  if (ioctl(fd, TIOCMSET, &status) == -1) {
+    perror("setRTS(): TIOCMSET");
+    return 0;
+  }
+  return 1;
 }
 
 /**********************************************************************/
