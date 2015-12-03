@@ -394,6 +394,25 @@ int set_rts(int fd, int level)
   return 1;
 }
 
+
+void rts_start_transmission(fd) {
+    //TODO: error handling
+    int i;
+    ioctl(fd, TIOCMGET, &i);
+    i |= TIOCM_RTS;
+    ioctl(fd, TIOCMSET, &i);
+}
+
+
+void rts_end_transmission(fd) {
+    //TODO: error handling
+    int i;
+    ioctl(fd, TIOCMGET, &i);
+    i &= ~TIOCM_RTS;
+    ioctl(fd, TIOCMSET, &i);
+}
+
+
 /**********************************************************************/
 
 int Debug_Enabled = FALSE;
