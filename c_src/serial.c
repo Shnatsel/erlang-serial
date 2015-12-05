@@ -109,9 +109,6 @@ bit_rate bitrate_table[MAXSPEED] = {
   {230400 , B230400 }
 };
 
-#define RTS_TRANSMITTING 0
-#define RTS_RECEIVING 1
-
 /**********************************************************************
  * Name: get_speed
  *
@@ -229,6 +226,12 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed)
 
   ttymodes.c_cflag |= CRTSCTS;     /* enable RTS/CTS flow control */
   rts_end_transmission(fd);
+
+  //Shnatsel's debug. This blinks!
+  sleep(1);
+  rts_start_transmission(fd);
+  sleep(1);
+  rts_end_transmission(fd)
 
   /* Apply hanges */
 
@@ -349,6 +352,8 @@ int tbh_read(int fd, unsigned char buf[], int buffsize)
 void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 		  unsigned char buf[], int buffmaxsize)
 {
+  // Added by Shnatsel.
+  // This is the actual thing we need and it doesn't work. No idea why.
   rts_start_transmission(ttyfd);
 
   write(ttyfd,buf,buffsize);
@@ -372,9 +377,30 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 /**********************************************************************
  * Name: set_rts
  * Desc: change RTS/CTS hardware flow control state.
- *       Valid levels are RTS_TRANSMITTING and RTS_RECEIVING.
+ *       Shnatsel's additions.
  *
  */
+
+void rts_start_transmission(fd) {
+    //TODO: error handling
+    int i;
+    ioctl(fd, TIOCMGET, &i);
+    i |= TIOCM_RTS;
+    ioctl(fd, TIOCMSET, &i);
+}
+
+
+void rts_end_transmission(fd) {
+    //TODO: error handling
+    int i;
+    ioctl(fd, TIOCMGET, &i);
+    i &= ~TIOCM_RTS;
+    ioctl(fd, TIOCMSET, &i);
+}
+
+/* ALTERNATIVE COMPLICATED WAY LIFTED FROM ARDUINO EXAMPLES
+#define RTS_TRANSMITTING 0
+#define RTS_RECEIVING 1
 
 int set_rts(int fd, int level)
 {
@@ -394,25 +420,7 @@ int set_rts(int fd, int level)
   }
   return 1;
 }
-
-
-void rts_start_transmission(fd) {
-    //TODO: error handling
-    int i;
-    ioctl(fd, TIOCMGET, &i);
-    i |= TIOCM_RTS;
-    ioctl(fd, TIOCMSET, &i);
-}
-
-
-void rts_end_transmission(fd) {
-    //TODO: error handling
-    int i;
-    ioctl(fd, TIOCMGET, &i);
-    i &= ~TIOCM_RTS;
-    ioctl(fd, TIOCMSET, &i);
-}
-
+*/
 
 /**********************************************************************/
 
