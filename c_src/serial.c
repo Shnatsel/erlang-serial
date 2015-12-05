@@ -397,6 +397,8 @@ void rts_end_transmission(fd) {
     i &= ~TIOCM_RTS;
     ioctl(fd, TIOCMSET, &i);
 }
+// The above can be optimized by using TIOCMBIS and TIOCMBIC,
+// which do not require setting the entire state or even querying it
 
 /* ALTERNATIVE COMPLICATED WAY LIFTED FROM ARDUINO EXAMPLES
 #define RTS_TRANSMITTING 0
