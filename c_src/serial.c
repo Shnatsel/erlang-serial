@@ -363,7 +363,7 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
       totalsize -= buffsize;
     }
 
-  rts_start_transmission(ttyfd);
+  rts_end_transmission(ttyfd);
 
   return;
 }
