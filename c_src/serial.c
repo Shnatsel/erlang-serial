@@ -228,10 +228,12 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed)
   rts_end_transmission(fd);
 
   //Shnatsel's debug. This blinks!
+/*
   sleep(1);
   rts_start_transmission(fd);
   sleep(1);
   rts_end_transmission(fd);
+*/
 
   /* Apply hanges */
 
