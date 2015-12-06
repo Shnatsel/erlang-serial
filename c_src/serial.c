@@ -371,6 +371,7 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
       totalsize -= buffsize;
     }
 
+  tcdrain(ttyfd); //wait until everything written is transmitted before RTS signalling
   rts_end_transmission(ttyfd);
 
   return;
@@ -432,6 +433,7 @@ int set_rts(int fd, int level)
 extern ssize_t write_with_rts(int ttyfd, const void *buf, size_t nr_read) {
     rts_start_transmission(ttyfd);
     write(ttyfd,buf,nr_read);
+    tcdrain(ttyfd); //wait until everything written is transmitted before RTS signalling
     rts_end_transmission(ttyfd);
 }
 
