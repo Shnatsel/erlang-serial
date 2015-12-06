@@ -225,7 +225,7 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed)
     }
 
   ttymodes.c_cflag |= CRTSCTS;     /* enable RTS/CTS flow control */
-  rts_end_transmission(fd);
+  rts_end_transmission(fd); //FIXME: apply this as soon as we start listening the port
 
   //Shnatsel's debug. This blinks!
 /*
