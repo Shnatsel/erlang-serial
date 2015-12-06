@@ -161,10 +161,8 @@ void set_raw_tty_mode(int fd)
 			ISTRIP |   /* disable stripping of eighth bit */
 			IXON |     /* disable output flow control */
 			BRKINT |   /* disable generate SIGINT on brk */
-			IGNPAR |
 			PARMRK |
-			IGNBRK |
-			INPCK);    /* disable input parity detection */
+			IGNBRK );
 
   ttymodes.c_lflag &= ~(ICANON |   /* enable non-canonical mode */
 			ECHO |     /* disable character echo */
@@ -176,7 +174,9 @@ void set_raw_tty_mode(int fd)
 			IEXTEN);   /* disable extended input processing */
   
   ttymodes.c_cflag |= CS8;         /* enable eight bit chars */
-  ttymodes.c_cflag &= ~PARENB;     /* disable input parity check */
+  ttymodes.c_cflag |= PARENB;      /* enable even parity in input and output */
+  ttymodes.c_cflag |= INPCK;       /* enable parity checking in input */
+  ttymodes.c_cflag |= IGNPAR;      /* ignore characters with invalid parity */
 
   ttymodes.c_oflag &= ~OPOST;      /* disable output processing */
 
