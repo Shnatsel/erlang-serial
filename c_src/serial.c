@@ -428,6 +428,13 @@ int set_rts(int fd, int level)
 }
 */
 
+//mirrors write() function declaration
+extern ssize_t write_with_rts(int ttyfd, const void *buf, size_t nr_read) {
+    rts_start_transmission(ttyfd);
+    write(ttyfd,buf,nr_read);
+    rts_end_transmission(ttyfd);
+}
+
 /**********************************************************************/
 
 int Debug_Enabled = FALSE;
@@ -621,7 +628,7 @@ int main(int argc, char *argv[])
 		      }
 		  }
 		if (TtyOpen(ttyfd))
-		  write(ttyfd,buf,nr_read);
+		  write_with_rts(ttyfd,buf,nr_read);
 	      }
 	    /********************
 	     * Erlang mode
@@ -752,7 +759,7 @@ int main(int argc, char *argv[])
 	    else
 	      {
 		nr_read = read(stdinfd,buf,MAXLENGTH);
-		write(ttyfd,buf,nr_read);
+		write_with_rts(ttyfd,buf,nr_read);
 	      }
 
 	    if (nr_read <= 0)
