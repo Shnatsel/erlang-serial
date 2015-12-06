@@ -231,7 +231,7 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed)
   sleep(1);
   rts_start_transmission(fd);
   sleep(1);
-  rts_end_transmission(fd)
+  rts_end_transmission(fd);
 
   /* Apply hanges */
 
@@ -356,6 +356,8 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
   // This is the actual thing we need and it doesn't work. No idea why.
   rts_start_transmission(ttyfd);
 
+  Debug1("write_to_tty: writing message of size %d\r\n",totalsize);
+
   write(ttyfd,buf,buffsize);
   totalsize -= buffsize;
 
@@ -383,6 +385,7 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 
 void rts_start_transmission(fd) {
     //TODO: error handling
+    Debug1("rts_start_transmission: on fd %d\r\n",fd);
     int i;
     ioctl(fd, TIOCMGET, &i);
     i |= TIOCM_RTS;
@@ -392,6 +395,7 @@ void rts_start_transmission(fd) {
 
 void rts_end_transmission(fd) {
     //TODO: error handling
+    Debug1("rts_end_transmission: on fd %d\r\n",fd);
     int i;
     ioctl(fd, TIOCMGET, &i);
     i &= ~TIOCM_RTS;
