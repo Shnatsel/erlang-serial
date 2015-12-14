@@ -355,7 +355,6 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 		  unsigned char buf[], int buffmaxsize)
 {
   // Added by Shnatsel.
-  // This is the actual thing we need and it doesn't work. No idea why.
   rts_start_transmission(ttyfd);
 
   Debug1("write_to_tty: writing message of size %d\r\n",totalsize);
@@ -386,9 +385,9 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
  *
  */
 
-void rts_start_transmission(fd) {
+void rts_end_transmission(fd) {
     //TODO: error handling
-    Debug1("rts_start_transmission: on fd %d\r\n",fd);
+    Debug1("rts_end_transmission: on fd %d\r\n",fd);
     int i;
     ioctl(fd, TIOCMGET, &i);
     i |= TIOCM_RTS;
@@ -396,9 +395,9 @@ void rts_start_transmission(fd) {
 }
 
 
-void rts_end_transmission(fd) {
+void rts_start_transmission(fd) {
     //TODO: error handling
-    Debug1("rts_end_transmission: on fd %d\r\n",fd);
+    Debug1("rts_start_transmission: on fd %d\r\n",fd);
     int i;
     ioctl(fd, TIOCMGET, &i);
     i &= ~TIOCM_RTS;
