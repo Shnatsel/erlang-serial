@@ -387,14 +387,16 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 void rts_end_transmission(fd) {
     //TODO: error handling
     Debug1("rts_end_transmission: on fd %d\r\n",fd);
-    ioctl(fd, TIOCMBIC, &TIOCM_RTS);
+    int rts_bit = TIOCM_RTS; //Won't work without this. Something about types.
+    ioctl(fd, TIOCMBIC, &rts_bit);
 }
 
 
 void rts_start_transmission(fd) {
     //TODO: error handling
     Debug1("rts_start_transmission: on fd %d\r\n",fd);
-    ioctl(fd, TIOCMBIS, &TIOCM_RTS);
+    int rts_bit = TIOCM_RTS; //Oh C, I love you so...
+    ioctl(fd, TIOCMBIS, &rts_bit);
 }
 // The above can be optimized by using TIOCMBIS and TIOCMBIC,
 // which do not require setting the entire state or even querying it
