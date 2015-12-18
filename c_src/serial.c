@@ -194,6 +194,49 @@ void set_raw_tty_mode(int fd)
 }
 
 /**********************************************************************
+ * Name: rts_start_transmission
+ * Desc: change RTS/CTS hardware flow control state to "I'm transmitting".
+ *       Shnatsel's addition.
+ *
+ */
+
+int rts_start_transmission(fd) {
+    Debug1("rts_start_transmission: on fd %d\r\n",fd);
+    int rts_bit = TIOCM_RTS; //Oh C, I love you so...
+    return ioctl(fd, TIOCMBIC, &rts_bit);
+}
+
+/**********************************************************************
+ * Name: rts_end_transmission
+ * Desc: change RTS/CTS hardware flow control state to "I'm listening".
+ *       Shnatsel's addition.
+ *
+ */
+
+int rts_end_transmission(fd) {
+    Debug1("rts_end_transmission: on fd %d\r\n",fd);
+    int rts_bit = TIOCM_RTS; //Won't work without this. Something about types.
+    return ioctl(fd, TIOCMBIS, &rts_bit);
+}
+
+/**********************************************************************
+ * Name: write_with_rts
+ * Desc: Wrapper for write() that supports RTS/CTS flow control.
+ *       Useful for writing to the tty device of a half-duplex bus.
+ *       Shnatsel's addition.
+ *
+ */
+
+extern ssize_t write_with_rts(int ttyfd, const void *buf, size_t nr_read) {
+    ssize_t result;
+    rts_start_transmission(ttyfd);
+    result = write(ttyfd,buf,nr_read);
+    tcdrain(ttyfd); //wait until everything written is transmitted before RTS signalling
+    rts_end_transmission(ttyfd);
+    return result;
+}
+
+/**********************************************************************
  * Name: set_tty_speed
  *
  * Desc: set input and output speeds of a given connection.
@@ -344,6 +387,9 @@ int tbh_read(int fd, unsigned char buf[], int buffsize)
 void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 		  unsigned char buf[], int buffmaxsize)
 {
+
+  Debug1("write_to_tty: writing message of size %d\r\n",totalsize);
+
   write(ttyfd,buf,buffsize);
   totalsize -= buffsize;
 
