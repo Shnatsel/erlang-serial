@@ -1,6 +1,6 @@
 -module(basic_example).
 
--export([open/0, close/1, send/1, listen/0]).
+-export([open/0, close/1, send/1, listen/0, measure_losses/4]).
 
 open() ->
   SerialPort = serial:start([{open, "/dev/ttyUSB0"}, {speed, 9600}]),
@@ -14,15 +14,33 @@ send(SerialPort) ->
   SerialPort ! {send, "Hello World\r\n"},
   ok.
 
-listen() ->
+listen() -> listen(<<>>).
+
+listen(ReceivedBytes) ->
   receive
     % Receive data from the serial port on the caller's PID.
-    {data, Bytes} ->
-      io:format("~s", [Bytes]),
-      listen()
+    {data, NewlyReceivedBytes} ->
+      listen(<<ReceivedBytes/binary,NewlyReceivedBytes/binary>>)
   after
-    % Stop listening after 5 seconds of inactivity.
-    5000 ->
-      io:format("~n"),
-      ok
+    % Stop listening after 100 milliseconds of inactivity.
+    100 ->
+      ReceivedBytes
   end.
+
+measure_losses(SerialPort, Request, CorrectReply, RequestsRemaining) ->
+    measure_losses(SerialPort, Request, CorrectReply, 0, RequestsRemaining).
+
+measure_losses(_SerialPort, _Request, _CorrectReply, NumCorrectReplies, 0) ->
+    io:format("Correct replies: ~B~n", [NumCorrectReplies]),
+    NumCorrectReplies;
+measure_losses(SerialPort, Request, CorrectReply, NumCorrectReplies, RequestsRemaining) ->
+    timer:sleep(50),
+    SerialPort ! {send, Request},
+    Reply = listen(),
+    io:format("Received ~s~n", [[io_lib:format("~2.16.0B",[X]) || <<X:8>> <= Reply ]]),
+    case Reply of
+        CorrectReply ->
+            measure_losses(SerialPort, Request, CorrectReply, NumCorrectReplies + 1, RequestsRemaining - 1);
+        _AnythingElse ->
+            measure_losses(SerialPort, Request, CorrectReply, NumCorrectReplies, RequestsRemaining - 1)
+    end.
