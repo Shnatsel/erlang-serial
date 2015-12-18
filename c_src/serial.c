@@ -387,6 +387,7 @@ int tbh_read(int fd, unsigned char buf[], int buffsize)
 void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
 		  unsigned char buf[], int buffmaxsize)
 {
+  rts_start_transmission(ttyfd);
 
   Debug1("write_to_tty: writing message of size %d\r\n",totalsize);
 
@@ -402,6 +403,9 @@ void write_to_tty(int ttyfd, int fillfd, int totalsize, int buffsize,
       write(ttyfd,buf,buffsize);
       totalsize -= buffsize;
     }
+
+  tcdrain(ttyfd); //wait until everything written is transmitted before RTS signalling
+  rts_end_transmission(ttyfd);
 
   return;
 }
@@ -599,7 +603,7 @@ int main(int argc, char *argv[])
 		      }
 		  }
 		if (TtyOpen(ttyfd))
-		  write(ttyfd,buf,nr_read);
+		  write_with_rts(ttyfd,buf,nr_read);
 	      }
 	    /********************
 	     * Erlang mode
@@ -730,7 +734,7 @@ int main(int argc, char *argv[])
 	    else
 	      {
 		nr_read = read(stdinfd,buf,MAXLENGTH);
-		write(ttyfd,buf,nr_read);
+		write_with_rts(ttyfd,buf,nr_read);
 	      }
 
 	    if (nr_read <= 0)
