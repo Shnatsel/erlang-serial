@@ -182,7 +182,7 @@ void set_raw_tty_mode(int fd)
   /* roland */
   ttymodes.c_cflag |= CLOCAL;
 
-
+  ttymodes.c_cflag &= ~CRTSCTS;    /* disable hardware flow control */
 
   /* Apply changes */
 
@@ -222,8 +222,6 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed)
       perror("cfsetospeed");
       exit(1);
     }
-
-  ttymodes.c_cflag |= CRTSCTS;     /* enable RTS/CTS flow control */
 
   /* Apply hanges */
 
