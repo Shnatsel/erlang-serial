@@ -3,7 +3,7 @@
 -export([open/0, close/1, send/1, listen/0, measure_losses/4]).
 
 open() ->
-  SerialPort = serial:start([{open, "/dev/ttyAMA0"}, {speed, 9600}]),
+  SerialPort = serial:start([{open, "/dev/ttyAMA0"}, {speed, 115200}]),
   {ok, SerialPort}.
 
 close(SerialPort) ->
