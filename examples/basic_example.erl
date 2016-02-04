@@ -16,14 +16,24 @@ send(SerialPort) ->
 
 listen() -> listen(<<>>).
 
-listen(ReceivedBytes) ->
+listen(<<>>) ->
   receive
     % Receive data from the serial port on the caller's PID.
+    {data, ReceivedBytes} ->
+      listen(<<ReceivedBytes/binary>>)
+  after
+    % Give up listening after 100 milliseconds without seeing a message start
+    100 ->
+      <<>>
+  end;
+listen(ReceivedBytes) ->
+  receive
+    % Receive more data from the serial port on the caller's PID.
     {data, NewlyReceivedBytes} ->
       listen(<<ReceivedBytes/binary,NewlyReceivedBytes/binary>>)
   after
-    % Stop listening after 100 milliseconds of inactivity.
-    100 ->
+    % Stop waiting for message continuation after 10 milliseconds of inactivity.
+    5 ->
       ReceivedBytes
   end.
 
@@ -34,7 +44,6 @@ measure_losses(_SerialPort, _Request, _CorrectReply, NumCorrectReplies, 0) ->
     io:format("Correct replies: ~B~n", [NumCorrectReplies]),
     NumCorrectReplies;
 measure_losses(SerialPort, Request, CorrectReply, NumCorrectReplies, RequestsRemaining) ->
-    timer:sleep(50),
     SerialPort ! {send, Request},
     Reply = listen(),
     io:format("Received ~s~n", [[io_lib:format("~2.16.0B",[X]) || <<X:8>> <= Reply ]]),
@@ -44,3 +53,4 @@ measure_losses(SerialPort, Request, CorrectReply, NumCorrectReplies, RequestsRem
         _AnythingElse ->
             measure_losses(SerialPort, Request, CorrectReply, NumCorrectReplies, RequestsRemaining - 1)
     end.
+
